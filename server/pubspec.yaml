@@ -1,5 +1,7 @@
 name: server
 version: 0.0.1
-description: A simple console application.
-#dependencies:
-#  foo_bar: '>=1.0.0 <2.0.0'
+description: DummyChat server.
+dependencies:
+  dart_orm:
+  dart_orm_adapter_mysql:
+  route:
