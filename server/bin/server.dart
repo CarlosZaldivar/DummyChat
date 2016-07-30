@@ -1,7 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
-import 'package:crypto/crypto.dart';
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:dart_orm/dart_orm.dart' as orm;
 import 'package:route/server.dart' show Router;
 
@@ -25,8 +26,7 @@ main() async {
     var router = new Router(server);
 
     router.serve('/ws')
-    .transform(new WebSocketTransformer())
-    .listen(handleMessage);
+    .listen(logIn);
 
     router.serve('/register')
     .listen(register);
@@ -42,16 +42,51 @@ class LoggedUser {
 
 List<LoggedUser> LoggedUsers = [];
 
-bool authenticate(String auth) {
-  String name = auth.split(' ')[0];
-  String value = auth.substring(name.length + 1);
-  if (name == 'Basic') {
-    String credentials = UTF8.decode(BASE64.decode(value));
-    String username = credentials.split(':')[0];
-    String password = credentials.substring(username.length + 1);
-    return true;
+Future<User> authenticate(HttpRequest req) async {
+  var completer = new Completer();
+  var authHeader;
+  try {
+    authHeader = req.headers['authorization'][0];
+  } on NoSuchMethodError catch (e) {
+    return null;
   }
-  return false;
+  var splitAuth = authHeader.split(' ');
+
+  if (splitAuth.length != 2) {
+    return null;
+  }
+
+  String method = splitAuth[0];
+
+  if (method != 'Basic') {
+    return null;
+  }
+
+  String value = splitAuth[1];
+  String credentials;
+  try {
+    credentials = UTF8.decode(BASE64.decode(value));
+  } on FormatException catch (e) {
+    return null;
+  }
+  var splitCredentials = credentials.split(':');
+  if (splitCredentials.length != 2) {
+    return null;
+  }
+  String username = splitCredentials[0];
+  String password = splitCredentials[1];
+
+  var query = new orm.FindOne(User)
+    ..where(new orm.Equals('username', username));
+  query.execute().then((result) {
+    if (result.password == hashPassword(password)) {
+      completer.complete(result);
+    } else {
+      completer.complete(null);
+    }
+  });
+
+  return completer.future;
 }
 
 register(HttpRequest req) async {
@@ -62,7 +97,9 @@ register(HttpRequest req) async {
     Map credentials = JSON.decode(body);
     username = credentials['username'];
     rawPassword = credentials['password'];
-    if (!(username is String) || !(rawPassword is String)) {
+    RegExp usernameRegex = new RegExp(r'^[a-zA-Z0-9_-]*$');
+    if (!(username is String) || !(rawPassword is String) ||
+        !usernameRegex.hasMatch(username)) {
       // Custom exception should be thrown here.
       throw new Exception();
     }
@@ -91,33 +128,47 @@ register(HttpRequest req) async {
   req.response.close();
 }
 
-handleMessage(WebSocket socket) {
-  socket
-    .map((string) => JSON.decode(string))
-    .listen((json) {
-      String requestType = json['requestType'];
-      switch (requestType) {
-        case 'getUser':
-          getUser(json);
-          print('getUser');
-          break;
-        case 'sendMessage':
-          print('sendMessage');
-          sendMessage(json);
-          break;
-        case 'changePassword':
-          print('changePassword');
-          break;
-        default:
-          print('default');
-          break;
-      }
-    }, onError: (error) {
-      print('error');
-    });
-  LoggedUser newClient = new LoggedUser();
-  newClient.socket = socket;
-  LoggedUsers.add(newClient);
+logIn(HttpRequest req) async {
+  var user = await authenticate(req);
+  if (user == null) {
+    req.response.statusCode = HttpStatus.UNAUTHORIZED;
+    req.response.close();
+    return;
+  } else {
+    var socket = await WebSocketTransformer.upgrade(req);
+    socket
+      .map((string) => JSON.decode(string))
+      .listen(handleMessage, onError: handleError);
+
+    LoggedUser newClient = new LoggedUser();
+    newClient.socket = socket;
+    newClient.user = user;
+    LoggedUsers.add(newClient);
+  }
+}
+
+handleError(error) {
+  print(error);
+}
+
+handleMessage(json) {
+  String requestType = json['requestType'];
+  switch (requestType) {
+    case 'getUser':
+      getUser(json);
+      print('getUser');
+      break;
+    case 'sendMessage':
+      print('sendMessage');
+      sendMessage(json);
+      break;
+    case 'changePassword':
+      print('changePassword');
+      break;
+    default:
+      print('default');
+      break;
+  }
 }
 
 String hashPassword(String rawPassword) {
