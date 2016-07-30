@@ -2,6 +2,7 @@ name: server
 version: 0.0.1
 description: DummyChat server.
 dependencies:
+  crypto:
   dart_orm:
   dart_orm_adapter_mysql:
   route:

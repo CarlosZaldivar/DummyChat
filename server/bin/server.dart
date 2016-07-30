@@ -1,14 +1,23 @@
 import 'dart:io';
 import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+import 'package:dart_orm/dart_orm.dart' as orm;
 import 'package:route/server.dart' show Router;
 
-import 'models.dart' as models;
+import 'models.dart' show
+  Conversation,
+  DatabaseConnectionManager,
+  Message,
+  User,
+  UserConversation;
 
 main() async {
   try {
-//    await models.initializeDBConnection();
+    var databaseManager = new DatabaseConnectionManager('DummyChat', 'DummyChat', 'DummyChat');
+    await databaseManager.openConnection();
   } catch (e) {
-    print(e);
+    print('Could not connect to database.');
   }
 
   try {
@@ -26,12 +35,12 @@ main() async {
   }
 }
 
-class LoggedClient {
+class LoggedUser {
   WebSocket socket;
-  String username;
+  User user;
 }
 
-List<LoggedClient> loggedClients = [];
+List<LoggedUser> LoggedUsers = [];
 
 bool authenticate(String auth) {
   String name = auth.split(' ')[0];
@@ -46,21 +55,37 @@ bool authenticate(String auth) {
 }
 
 register(HttpRequest req) async {
+  String username;
+  String rawPassword;
   try {
     var body = await req.transform(UTF8.decoder).join();
     Map credentials = JSON.decode(body);
-    String username = credentials['username'];
-    String rawPassword = credentials['password'];
-    assert(username != null && rawPassword != null);
-    print(username);
-    print(rawPassword);
+    username = credentials['username'];
+    rawPassword = credentials['password'];
+    if (!(username is String) || !(rawPassword is String)) {
+      // Custom exception should be thrown here.
+      throw new Exception();
+    }
   } catch (e) {
     req.response.statusCode = HttpStatus.BAD_REQUEST;
     req.response.close();
     return;
   }
 
+  var query = new orm.FindOne(User)
+    ..where(new orm.Equals('username', username));
 
+  var result = await query.execute();
+  if (result != null) {
+    req.response.statusCode = HttpStatus.CONFLICT;
+    req.response.close();
+    return;
+  }
+
+  var newUser = new User();
+  newUser.username = username;
+  newUser.password = hashPassword(rawPassword);
+  await newUser.save();
 
   req.response.statusCode = HttpStatus.OK;
   req.response.close();
@@ -90,9 +115,15 @@ handleMessage(WebSocket socket) {
     }, onError: (error) {
       print('error');
     });
-  LoggedClient newClient = new LoggedClient();
+  LoggedUser newClient = new LoggedUser();
   newClient.socket = socket;
-  loggedClients.add(newClient);
+  LoggedUsers.add(newClient);
+}
+
+String hashPassword(String rawPassword) {
+  var bytes = rawPassword.codeUnits;
+  var digest = sha256.convert(bytes);
+  return digest.toString();
 }
 
 

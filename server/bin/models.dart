@@ -4,7 +4,6 @@ import 'package:dart_orm/dart_orm.dart' as orm;
 main() async {
   var connectionManager = new DatabaseConnectionManager('DummyChat', 'DummyChat', 'DummyChat');
   await connectionManager.openConnection();
-  orm.AnnotationsParser.initialize();
   await orm.Migrator.migrate();
   connectionManager.closeConnection();
 }
@@ -30,6 +29,7 @@ class DatabaseConnectionManager {
 
     orm.addAdapter('mysql', adapter);
     orm.setDefaultAdapter('mysql');
+    orm.AnnotationsParser.initialize();
   }
 
   closeConnection() {
