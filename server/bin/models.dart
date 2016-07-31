@@ -60,6 +60,9 @@ class Message extends orm.Model {
   int conversationId;
 
   @orm.DBField()
+  int authorId;
+
+  @orm.DBField()
   String content;
 }
 
