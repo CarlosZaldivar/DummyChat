@@ -78,7 +78,7 @@ Future<User> authenticate(HttpRequest req) async {
 
   var query = new orm.FindOne(User)
     ..where(new orm.Equals('username', username));
-  query.execute().then((result) {
+  query.execute().then((User result) {
     if (result.password == hashPassword(password)) {
       completer.complete(result);
     } else {
@@ -138,7 +138,7 @@ logIn(HttpRequest req) async {
     var socket = await WebSocketTransformer.upgrade(req);
     socket
       .map((string) => JSON.decode(string))
-      .listen(handleMessage, onError: handleError);
+      .listen((json) => handleMessage(socket, json), onError: handleError);
 
     LoggedUser newClient = new LoggedUser();
     newClient.socket = socket;
@@ -151,11 +151,13 @@ handleError(error) {
   print(error);
 }
 
-handleMessage(json) {
+
+
+handleMessage(WebSocket socket, Map json) {
   String requestType = json['requestType'];
   switch (requestType) {
     case 'getUser':
-      getUser(json);
+      getUser(socket, json);
       print('getUser');
       break;
     case 'sendMessage':
@@ -179,8 +181,24 @@ String hashPassword(String rawPassword) {
 
 
 
-getUser(json) {
+getUser(WebSocket socket, Map json) async {
+  var username = json['username'];
+  if (username == null) {
+    socket.add(null);
+    return;
+  }
 
+  var query = new orm.FindOne(User)
+    ..where(new orm.Equals('username', username));
+
+  User result = await query.execute();
+  if (result == null) {
+    socket.add(null);
+    return;
+  }
+
+  var user = {'username': result.username, 'id': result.id};
+  socket.add(JSON.encode(user));
 }
 
 sendMessage(json) {
