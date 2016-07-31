@@ -40,7 +40,7 @@ class LoggedUser {
   User user;
 }
 
-List<LoggedUser> LoggedUsers = [];
+Map<String, LoggedUser> loggedUsers = {};
 
 Future<User> authenticate(HttpRequest req) async {
   var completer = new Completer();
@@ -138,12 +138,22 @@ logIn(HttpRequest req) async {
     var socket = await WebSocketTransformer.upgrade(req);
     socket
       .map((string) => JSON.decode(string))
-      .listen((json) => handleMessage(socket, json), onError: handleError);
+      .listen((json) => handleMessage(socket, json),
+               onDone: () => disconnect(user),
+               onError: handleError);
 
     LoggedUser newClient = new LoggedUser();
     newClient.socket = socket;
     newClient.user = user;
-    LoggedUsers.add(newClient);
+    loggedUsers[user.username] = newClient;
+  }
+}
+
+disconnect(User user) {
+  LoggedUser loggedUser = loggedUsers[user.username];
+  if (loggedUser != null) {
+    loggedUsers[user.username].socket.close();
+    loggedUsers.remove(user.username);
   }
 }
 
@@ -158,7 +168,6 @@ handleMessage(WebSocket socket, Map json) {
   switch (requestType) {
     case 'getUser':
       getUser(socket, json);
-      print('getUser');
       break;
     case 'sendMessage':
       print('sendMessage');
