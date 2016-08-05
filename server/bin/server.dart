@@ -169,6 +169,9 @@ handleMessage(String sender, Map json) {
     case 'getUser':
       getUser(sender, json);
       break;
+    case 'getConversations':
+      getConversations(sender, json);
+      break;
     case 'startConversation':
       startConversation(sender, json);
       break;
@@ -220,9 +223,50 @@ getUser(String senderUsername, Map json) async {
   sender.socket.add(JSON.encode(response));
 }
 
+getConversations(String senderUsername, Map json) async {
+  LoggedUser sender = loggedUsers[senderUsername];
+  if (sender == null) {
+    return;
+  }
+
+  // Get sender's conversations.
+  var query = new orm.Find(UserConversation)
+    ..where(new orm.Equals('userId', sender.user.id));
+  List<UserConversation> userConversations = await query.execute();
+
+  Map response = {};
+  response['conversations'] = [];
+  for (var userConversation in userConversations) {
+    var conversation = {'id': userConversation.conversationId};
+    var query = new orm.Find(Message)
+      ..where(new orm.Equals('conversationId', conversation['id']));
+    List<Message> messages = await query.execute();
+    conversation['messages'] = messages.map((message) =>
+    {
+      'id': message.id,
+      'conversationId': message.conversationId,
+      'authorId': message.authorId,
+      'content': message.content
+    }).toList();
+
+    // Find other participant.
+    query = new orm.FindOne(UserConversation)
+      ..where(new orm.Equals('conversationId', conversation['id'])
+              .and(new orm.NotEquals('userId', sender.user.id)));
+    var recipientConversation = await query.execute();
+    query = new orm.FindOne(User)
+      ..where(new orm.Equals('id', recipientConversation.userId));
+    var recipient = await query.execute();
+    conversation['recipient'] = {'id': recipient.id, 'username': recipient.username};
+    response['conversations'].add(conversation);
+  }
+  response['status'] = 'OK';
+  sender.socket.add(JSON.encode(response));
+}
+
 startConversation(String senderUsername, Map json) async {
   LoggedUser sender = loggedUsers[senderUsername];
-  if (loggedUsers == null) {
+  if (sender == null) {
     return;
   }
   Map response = {};
