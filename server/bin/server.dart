@@ -138,22 +138,22 @@ logIn(HttpRequest req) async {
     var socket = await WebSocketTransformer.upgrade(req);
     socket
       .map((string) => JSON.decode(string))
-      .listen((json) => handleMessage(user.username, json),
+      .listen((json) => handleMessage(user.id, json),
                onDone: () => disconnect(user),
                onError: handleError);
 
     LoggedUser newClient = new LoggedUser();
     newClient.socket = socket;
     newClient.user = user;
-    loggedUsers[user.username] = newClient;
+    loggedUsers[user.id] = newClient;
   }
 }
 
 disconnect(User user) {
   LoggedUser loggedUser = loggedUsers[user.username];
   if (loggedUser != null) {
-    loggedUsers[user.username].socket.close();
-    loggedUsers.remove(user.username);
+    loggedUsers[user.id].socket.close();
+    loggedUsers.remove(user.id);
   }
 }
 
@@ -163,20 +163,20 @@ handleError(error) {
 
 
 
-handleMessage(String sender, Map json) {
+handleMessage(int senderId, Map json) {
   String requestType = json['requestType'];
   switch (requestType) {
     case 'getUser':
-      getUser(sender, json);
+      getUser(senderId, json);
       break;
     case 'getConversations':
-      getConversations(sender, json);
+      getConversations(senderId, json);
       break;
     case 'startConversation':
-      startConversation(sender, json);
+      startConversation(senderId, json);
       break;
     case 'sendMessage':
-      sendMessage(sender, json);
+      sendMessage(senderId, json);
       break;
     case 'changePassword':
       print('changePassword');
@@ -195,8 +195,8 @@ String hashPassword(String rawPassword) {
 
 
 
-getUser(String senderUsername, Map json) async {
-  LoggedUser sender = loggedUsers[senderUsername];
+getUser(int senderId, Map json) async {
+  LoggedUser sender = loggedUsers[senderId];
   if (sender == null) {
     return;
   }
@@ -223,8 +223,8 @@ getUser(String senderUsername, Map json) async {
   sender.socket.add(JSON.encode(response));
 }
 
-getConversations(String senderUsername, Map json) async {
-  LoggedUser sender = loggedUsers[senderUsername];
+getConversations(int senderId, Map json) async {
+  LoggedUser sender = loggedUsers[senderId];
   if (sender == null) {
     return;
   }
@@ -260,12 +260,12 @@ getConversations(String senderUsername, Map json) async {
     conversation['recipient'] = {'id': recipient.id, 'username': recipient.username};
     response['conversations'].add(conversation);
   }
-  response['status'] = 'OK';
+  response['status'] = 'ok';
   sender.socket.add(JSON.encode(response));
 }
 
-startConversation(String senderUsername, Map json) async {
-  LoggedUser sender = loggedUsers[senderUsername];
+startConversation(int senderId, Map json) async {
+  LoggedUser sender = loggedUsers[senderId];
   if (sender == null) {
     return;
   }
@@ -309,25 +309,79 @@ startConversation(String senderUsername, Map json) async {
   newMessage.conversationId = newConversation.id;
   newMessage.content = message;
   await newMessage.save();
-
-  response['status'] = 'ok';
-  response['conversation'] = {
+  
+  var conversation = {
     'id': newConversation.id,
     'messages': [{
       'id': newMessage.id,
       'authorId': newMessage.authorId,
       'content': newMessage.content
-    }]
+    }],
+    'participants': [sender.user.id, recipient.id]
   };
+  
+  if (loggedUsers[recipient.id] != null) {
+    var newMessage = {'messageType': 'newConversation', 'conversation': conversation};
+    loggedUsers[recipient.id].socket.add(JSON.encode(newMessage));
+  }
+  
+  response['status'] = 'ok';
+  response['conversation'] = conversation;
   sender.socket.add(JSON.encode(response));
 }
 
-sendMessage(String senderUsername, Map json) async {
-  LoggedUser sender = loggedUsers[senderUsername];
+sendMessage(int senderId, Map json) async {
+  LoggedUser sender = loggedUsers[senderId];
   if (sender == null) {
     return;
   }
 
+  Map response = {};
 
+  var message = json['message'];
+  if (message == null) {
+    response['status'] = 'error';
+    sender.socket.add(JSON.encode(response));
+    return;
+  }
+
+  if (sender.user.id != message['authorId'] || message['content'] == null) {
+    response['status'] = 'error';
+    sender.socket.add(JSON.encode(response));
+    return;
+  }
+
+  var conversationId = message['conversationId'];
+  var query = new orm.FindOne(Conversation)
+    ..where(new orm.Equals('id', conversationId));
+  var conversation = await query.execute();
+  if (conversation == null) {
+    response['status'] = 'error';
+    sender.socket.add(JSON.encode(response));
+    return;
+  }
+
+  // Create and save message.
+  var newMessage = new Message();
+  newMessage.authorId = sender.user.id;
+  newMessage.conversationId = conversationId;
+  newMessage.content = message['content'];
+  newMessage.save();
+
+  // Find other participant.
+  query = new orm.FindOne(UserConversation)
+    ..where(new orm.Equals('conversationId', conversation.id)
+        .and(new orm.NotEquals('userId', sender.user.id)));
+  var recipientConversation = await query.execute();
+
+  query = new orm.FindOne(User)
+    ..where(new orm.Equals('id', recipientConversation.userId));
+  var recipient = await query.execute();
+
+  if (loggedUsers[recipient.id] != null) {
+    var newMessage = {'messageType': 'newMessage', 'message': message};
+    loggedUsers[recipient.id].socket.add(JSON.encode(newMessage));
+  }
+  response['status'] = 'ok';
+  sender.socket.add(JSON.encode(response));
 }
-
