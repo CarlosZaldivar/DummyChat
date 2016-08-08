@@ -67,40 +67,64 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sVa-hv-3Y3">
-                                <rect key="frame" x="252" y="391" width="97" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="sVa-hv-3Y3">
+                                <rect key="frame" x="252" y="395" width="97" height="30"/>
                                 <accessibility key="accessibilityConfiguration" label="Username"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="97" id="ebg-uf-zaY"/>
+                                </constraints>
                                 <nil key="textColor"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="12"/>
                                 <textInputTraits key="textInputTraits"/>
+                                <connections>
+                                    <action selector="usernameEditing:" destination="2Pa-e3-XLb" eventType="editingChanged" id="B9C-1R-5Hb"/>
+                                </connections>
                             </textField>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tbL-IJ-ArT">
-                                <rect key="frame" x="252" y="434" width="97" height="30"/>
-                                <accessibility key="accessibilityConfiguration" label="Password"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
-                            </textField>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MJR-mq-Qmw">
-                                <rect key="frame" x="150" y="395" width="79" height="21"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MJR-mq-Qmw">
+                                <rect key="frame" x="150" y="395" width="79" height="23"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Password" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6RW-V8-dzN">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Password" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6RW-V8-dzN">
                                 <rect key="frame" x="155" y="438" width="74" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1jD-HA-xg9">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1jD-HA-xg9">
                                 <rect key="frame" x="272" y="517" width="57" height="30"/>
                                 <state key="normal" title="Register"/>
                                 <connections>
                                     <action selector="register:" destination="2Pa-e3-XLb" eventType="touchUpInside" id="QNM-TH-10G"/>
                                 </connections>
                             </button>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="tbL-IJ-ArT">
+                                <rect key="frame" x="252" y="434" width="97" height="30"/>
+                                <accessibility key="accessibilityConfiguration" label="Password"/>
+                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" secureTextEntry="YES"/>
+                                <connections>
+                                    <action selector="passwordEditing:" destination="2Pa-e3-XLb" eventType="editingChanged" id="3yb-qs-1Sz"/>
+                                </connections>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="sVa-hv-3Y3" firstAttribute="leading" secondItem="MJR-mq-Qmw" secondAttribute="trailing" constant="23" id="BRB-NT-6PT"/>
+                            <constraint firstItem="sVa-hv-3Y3" firstAttribute="trailing" secondItem="tbL-IJ-ArT" secondAttribute="trailing" id="DvG-9w-yL7"/>
+                            <constraint firstItem="1jD-HA-xg9" firstAttribute="top" secondItem="tbL-IJ-ArT" secondAttribute="bottom" constant="53" id="KCO-pN-43V"/>
+                            <constraint firstItem="sVa-hv-3Y3" firstAttribute="centerX" secondItem="onK-3T-wRE" secondAttribute="centerX" id="W9C-er-kEz"/>
+                            <constraint firstItem="tbL-IJ-ArT" firstAttribute="centerX" secondItem="1jD-HA-xg9" secondAttribute="centerX" id="Wgg-w8-S1n"/>
+                            <constraint firstItem="MJR-mq-Qmw" firstAttribute="trailing" secondItem="6RW-V8-dzN" secondAttribute="trailing" id="XZv-IC-PRm"/>
+                            <constraint firstItem="MJR-mq-Qmw" firstAttribute="baseline" secondItem="sVa-hv-3Y3" secondAttribute="baseline" id="Xjc-3H-xYf"/>
+                            <constraint firstItem="MJR-mq-Qmw" firstAttribute="top" secondItem="sVa-hv-3Y3" secondAttribute="top" id="ZWc-DZ-mXt"/>
+                            <constraint firstItem="sVa-hv-3Y3" firstAttribute="leading" secondItem="tbL-IJ-ArT" secondAttribute="leading" id="lBE-in-fHC"/>
+                            <constraint firstItem="tbL-IJ-ArT" firstAttribute="top" secondItem="sVa-hv-3Y3" secondAttribute="bottom" constant="9" id="q2i-9J-2Mm"/>
+                            <constraint firstItem="pM2-8x-RMJ" firstAttribute="top" secondItem="1jD-HA-xg9" secondAttribute="bottom" constant="53" id="qyZ-WJ-YSr"/>
+                            <constraint firstItem="6RW-V8-dzN" firstAttribute="centerY" secondItem="tbL-IJ-ArT" secondAttribute="centerY" id="z2G-0S-VQY"/>
+                        </constraints>
                     </view>
                     <connections>
                         <outlet property="passwordTextField" destination="tbL-IJ-ArT" id="5Ex-p2-phk"/>
