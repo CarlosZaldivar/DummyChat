@@ -22,7 +22,7 @@ main() async {
   }
 
   try {
-    var server = await HttpServer.bind('127.0.0.1', 4040);
+    var server = await HttpServer.bind('0.0.0.0', 4040);
     var router = new Router(server);
 
     router.serve('/ws')
@@ -46,7 +46,7 @@ Future<User> authenticate(HttpRequest req) async {
   var completer = new Completer();
   var authHeader;
   try {
-    authHeader = req.headers['authorization'][0];
+    authHeader = req.headers['Authorization'][0];
   } on NoSuchMethodError catch (e) {
     return null;
   }
@@ -78,14 +78,17 @@ Future<User> authenticate(HttpRequest req) async {
 
   var query = new orm.FindOne(User)
     ..where(new orm.Equals('username', username));
-  query.execute().then((User result) {
-    if (result == null || result.password != hashPassword(password)) {
+  query.execute()
+    .then((User result) {
+      if (result == null || result.password != hashPassword(password)) {
+        completer.complete(null);
+      } else {
+        completer.complete(result);
+      }
+    })
+    .catchError((e) {
       completer.complete(null);
-    } else {
-      completer.complete(result);
-    }
   });
-
   return completer.future;
 }
 
