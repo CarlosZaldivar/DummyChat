@@ -2,9 +2,6 @@
 //  AppDelegate.swift
 //  DummyChat
 //
-//  Created by Jan on 06/08/16.
-//  Copyright © 2016 Carlos Zaldivar. All rights reserved.
-//
 
 import UIKit
 

@@ -2,8 +2,6 @@
 //  SocketManager.swift
 //  DummyChat
 //
-//  Created by Jan on 06/08/16.
-//
 
 import UIKit
 
@@ -19,7 +17,12 @@ class SocketManager: NSObject {
     var socket: WebSocket = WebSocket(url: NSURL(string: "ws://192.168.43.246:4040/ws")!);
     
     
-    func establishConnection() {
+    func establishConnection(username: NSString, password: NSString) {
+        let loginString = NSString(format: "%@:%@", username, password)
+        let loginData = loginString.dataUsingEncoding(NSUTF8StringEncoding)
+        let base64EncodedCredential = loginData!.base64EncodedStringWithOptions(NSDataBase64EncodingOptions.Encoding64CharacterLineLength)
+        
+        socket.headers["Authorization"] = "Basic \(base64EncodedCredential)"
         socket.connect()
     }
     

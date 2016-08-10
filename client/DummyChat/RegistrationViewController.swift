@@ -2,8 +2,6 @@
 //  RegistrationViewController.swift
 //  DummyChat
 //
-//  Created by Jan on 07/08/16.
-//
 
 import UIKit
 
@@ -58,10 +56,15 @@ class RegistrationViewController: UIViewController, UITextFieldDelegate {
         Alamofire.request(.POST, "http://192.168.43.246:4040/register", parameters: parameters, encoding: .JSON)
             .validate()
             .responseString { response in
-                if (!response.result.isSuccess) {
+                if !response.result.isSuccess {
                     let alert = UIAlertController(title: "Error", message: "This is  username is already taken", preferredStyle: UIAlertControllerStyle.Alert)
                     alert.addAction(UIAlertAction(title: "Got it", style: UIAlertActionStyle.Default, handler: nil))
                     self.presentViewController(alert, animated: true, completion: nil)
+                } else {
+                    let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+                    
+                    let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("LoginView") as UIViewController
+                    self.presentViewController(nextViewController, animated:true, completion:nil)
                 }
         }
     }
