@@ -203,7 +203,7 @@ getUser(int senderId, Map json) async {
   if (sender == null) {
     return;
   }
-  Map response = {};
+  Map response = {'messageType': 'getUserResponse'};
   var username = json['username'];
   if (username == null) {
     response['status'] = 'error';
@@ -237,7 +237,7 @@ getConversations(int senderId, Map json) async {
     ..where(new orm.Equals('userId', sender.user.id));
   List<UserConversation> userConversations = await query.execute();
 
-  Map response = {};
+  Map response = {'messageType': 'getConversationsResponse'};
   response['conversations'] = [];
   for (var userConversation in userConversations) {
     var conversation = {'id': userConversation.conversationId};
@@ -272,7 +272,7 @@ startConversation(int senderId, Map json) async {
   if (sender == null) {
     return;
   }
-  Map response = {};
+  Map response = {'messageType': 'startConversationResponse'};
   var recipientUsername = json['recipient'];
   // Starting conversation without sending first message is not allowed.
   var message = json['message'];
@@ -339,7 +339,7 @@ sendMessage(int senderId, Map json) async {
     return;
   }
 
-  Map response = {};
+  Map response = {'messageType': 'sendMessageResponse'};
 
   var message = json['message'];
   if (message == null) {
