@@ -153,7 +153,7 @@ logIn(HttpRequest req) async {
 }
 
 disconnect(User user) {
-  LoggedUser loggedUser = loggedUsers[user.username];
+  LoggedUser loggedUser = loggedUsers[user.id];
   if (loggedUser != null) {
     loggedUsers[user.id].socket.close();
     loggedUsers.remove(user.id);
