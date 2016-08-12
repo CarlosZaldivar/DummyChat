@@ -137,19 +137,19 @@ logIn(HttpRequest req) async {
     req.response.statusCode = HttpStatus.UNAUTHORIZED;
     req.response.close();
     return;
-  } else {
-    var socket = await WebSocketTransformer.upgrade(req);
-    socket
-      .map((string) => JSON.decode(string))
-      .listen((json) => handleMessage(user.id, json),
-               onDone: () => disconnect(user),
-               onError: handleError);
-
-    LoggedUser newClient = new LoggedUser();
-    newClient.socket = socket;
-    newClient.user = user;
-    loggedUsers[user.id] = newClient;
   }
+
+  var socket = await WebSocketTransformer.upgrade(req);
+  socket
+    .map((string) => JSON.decode(string))
+    .listen((json) => handleMessage(user.id, json),
+             onDone: () => disconnect(user),
+             onError: handleError);
+
+  LoggedUser newClient = new LoggedUser();
+  newClient.socket = socket;
+  newClient.user = user;
+  loggedUsers[user.id] = newClient;
 }
 
 disconnect(User user) {
@@ -375,15 +375,11 @@ sendMessage(int senderId, Map json) async {
   query = new orm.FindOne(UserConversation)
     ..where(new orm.Equals('conversationId', conversation.id)
         .and(new orm.NotEquals('userId', sender.user.id)));
-  var recipientConversation = await query.execute();
+  UserConversation recipientConversation = await query.execute();
 
-  query = new orm.FindOne(User)
-    ..where(new orm.Equals('id', recipientConversation.userId));
-  var recipient = await query.execute();
-
-  if (loggedUsers[recipient.id] != null) {
+  if (loggedUsers[recipientConversation.userId] != null) {
     var newMessage = {'messageType': 'newMessage', 'message': message};
-    loggedUsers[recipient.id].socket.add(JSON.encode(newMessage));
+    loggedUsers[recipientConversation.userId].socket.add(JSON.encode(newMessage));
   }
   response['status'] = 'ok';
   sender.socket.add(JSON.encode(response));
