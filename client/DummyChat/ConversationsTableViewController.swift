@@ -31,6 +31,10 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
     }
     
     func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
+        // Clear data
+        SharedData.instance.user = nil
+        SharedData.instance.conversations = [Conversation]()
+        
         let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
         
         let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("LoginView") as UIViewController
@@ -47,7 +51,7 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
                 addConversations(json["conversations"])
             }
         case "newConversation":
-            break
+            addConversation(json["conversation"])
         default:
             ()
         }
@@ -65,8 +69,8 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
                 
                 let messagesJson = conversationJson["messages"].arrayValue
                 let messages = getMessages(messagesJson)
-                let recipient = User(username: conversationJson["recipient"]["username"].string!, id: conversationJson["recipient"]["id"].int!)
-                let participants = [recipient, SharedData.instance.user!]
+                let participantsJson = conversationJson["participants"].arrayValue
+                let participants = getParticipants(participantsJson)
                 let conversation = Conversation(id: id, messages: messages, participants: participants)
                 SharedData.instance.conversations.append(conversation)
                 indexPaths.append(NSIndexPath(forRow: i, inSection: 0))
@@ -81,6 +85,18 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
         tableView.endUpdates()
     }
     
+    func addConversation(conversationJson: JSON) {
+        let messages = getMessages(conversationJson["messages"].arrayValue)
+        let participants = getParticipants(conversationJson["participants"].arrayValue)
+        let conversation = Conversation(id: conversationJson["id"].int!, messages: messages, participants: participants)
+        
+        SharedData.instance.conversations.append(conversation)
+        
+        let insertionIndexPath = NSIndexPath(forRow: SharedData.instance.conversations.count - 1, inSection: 0)
+        
+        tableView.insertRowsAtIndexPaths([insertionIndexPath], withRowAnimation: .Automatic)
+    }
+    
     func getMessages(messagesJson: [JSON]) -> [Message] {
         var messages = [Message]()
         for messageJson in messagesJson {
@@ -88,6 +104,20 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
             messages.append(message)
         }
         return messages
+    }
+    
+    func getParticipants(participantsJson: [JSON]) -> [User] {
+        var participants = [User]()
+        for participantJson in participantsJson {
+            let participant = User(username: participantJson["username"].string!, id: participantJson["id"].int!)
+            participants.append(participant)
+        }
+        return participants
+    }
+    
+    override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        print(indexPath)
+        
     }
 
     // MARK: - Table view data source
