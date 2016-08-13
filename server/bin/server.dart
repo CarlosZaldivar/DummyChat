@@ -260,7 +260,16 @@ getConversations(int senderId, Map json) async {
     query = new orm.FindOne(User)
       ..where(new orm.Equals('id', recipientConversation.userId));
     var recipient = await query.execute();
-    conversation['recipient'] = {'id': recipient.id, 'username': recipient.username};
+    conversation['participants'] = [
+      {
+        'id': recipient.id,
+        'username': recipient.username
+      },
+      {
+        'id': sender.user.id,
+        'username': sender.user.username
+      }
+    ];
     response['conversations'].add(conversation);
   }
   response['status'] = 'ok';
