@@ -285,7 +285,7 @@ startConversation(int senderId, Map json) async {
   // Check if recipient exist.
   var query = new orm.FindOne(User)
     ..where(new orm.Equals('username', recipientUsername));
-  var recipient = await query.execute();
+  User recipient = await query.execute();
   if (recipient == null) {
     response['status'] = 'error';
     sender.socket.add(JSON.encode(response));
@@ -315,12 +315,23 @@ startConversation(int senderId, Map json) async {
   
   var conversation = {
     'id': newConversation.id,
-    'messages': [{
-      'id': newMessage.id,
-      'authorId': newMessage.authorId,
-      'content': newMessage.content
-    }],
-    'participants': [sender.user.id, recipient.id]
+    'messages': [
+      {
+        'id': newMessage.id,
+        'authorId': newMessage.authorId,
+        'content': newMessage.content
+      }
+    ],
+    'participants': [
+      {
+        'id': sender.user.id,
+        'username': sender.user.username
+      },
+      {
+        'id': recipient.id,
+        'username': recipient.username
+      }
+    ]
   };
   
   if (loggedUsers[recipient.id] != null) {
