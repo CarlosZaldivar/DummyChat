@@ -17,6 +17,7 @@
 		789E409A1D593A6400AB5697 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 789E40991D593A6400AB5697 /* LoginViewController.swift */; };
 		78AC5BED1D57E1870079F33C /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78AC5BEC1D57E1870079F33C /* RegistrationViewController.swift */; };
 		78B09A111D5BE3C3008E84E7 /* ConversationsTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78B09A101D5BE3C3008E84E7 /* ConversationsTableViewController.swift */; };
+		78DAF0CE1D5FAA3900A7D56D /* SharedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78DAF0CD1D5FAA3900A7D56D /* SharedData.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,7 @@
 		789E40991D593A6400AB5697 /* LoginViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		78AC5BEC1D57E1870079F33C /* RegistrationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegistrationViewController.swift; sourceTree = "<group>"; };
 		78B09A101D5BE3C3008E84E7 /* ConversationsTableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationsTableViewController.swift; sourceTree = "<group>"; };
+		78DAF0CD1D5FAA3900A7D56D /* SharedData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedData.swift; sourceTree = "<group>"; };
 		8107046A4F64EA6225A46C76 /* Pods_DummyChat.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DummyChat.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E07DE55E57FB7D3BDED762BA /* Pods-DummyChat.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DummyChat.debug.xcconfig"; path = "Pods/Target Support Files/Pods-DummyChat/Pods-DummyChat.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -70,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				786EC20A1D56521700E96E90 /* SocketManager.swift */,
+				78DAF0CD1D5FAA3900A7D56D /* SharedData.swift */,
 				783E32041D5626DF004FB8BE /* AppDelegate.swift */,
 				783E32061D5626DF004FB8BE /* ViewController.swift */,
 				783E32081D5626DF004FB8BE /* Main.storyboard */,
@@ -223,6 +226,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				783E32071D5626DF004FB8BE /* ViewController.swift in Sources */,
+				78DAF0CE1D5FAA3900A7D56D /* SharedData.swift in Sources */,
 				786EC20B1D56521700E96E90 /* SocketManager.swift in Sources */,
 				78B09A111D5BE3C3008E84E7 /* ConversationsTableViewController.swift in Sources */,
 				78AC5BED1D57E1870079F33C /* RegistrationViewController.swift in Sources */,

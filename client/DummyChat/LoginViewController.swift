@@ -6,6 +6,7 @@
 import UIKit
 
 import Starscream
+import SwiftyJSON
 
 class LoginViewController: UIViewController, WebSocketDelegate {
 
@@ -62,10 +63,8 @@ class LoginViewController: UIViewController, WebSocketDelegate {
     }
     
     func websocketDidConnect(socket: WebSocket) {
-        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
-        
-        let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("ConversationsView") as UIViewController
-        self.presentViewController(nextViewController, animated:true, completion:nil)
+        let json: JSON =  ["requestType": "getUser", "username": usernameTextField.text!]
+        SocketManager.sharedInstance.socket.writeString(json.rawString()!)
     }
     
     func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
@@ -75,8 +74,28 @@ class LoginViewController: UIViewController, WebSocketDelegate {
     }
     
     func websocketDidReceiveMessage(socket: WebSocket, text: String) {
+        let json: JSON = JSON(data: text.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!)
+        
+        let messageType = json["messageType"].string!
+        switch messageType {
+        case "getUserResponse":
+            if json["status"].string == "ok" {
+                var user = json["user"]
+                SharedData.instance.user = User(username: user["username"].string!, id: user["id"].int!)
+                goToConversations()
+            }
+        default:
+            ()
+        }
     }
     
     func websocketDidReceiveData(socket: WebSocket, data: NSData) {
+    }
+    
+    func goToConversations() {
+        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+        
+        let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("ConversationsView") as UIViewController
+        self.presentViewController(nextViewController, animated:true, completion:nil)
     }
 }

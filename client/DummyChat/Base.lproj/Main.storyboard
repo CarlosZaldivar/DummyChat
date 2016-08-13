@@ -217,18 +217,37 @@
         <scene sceneID="1UX-mf-3Ub">
             <objects>
                 <tableViewController storyboardIdentifier="ConversationsView" id="Hua-Z8-ZCA" customClass="ConversationsTableViewController" customModule="DummyChat" customModuleProvider="target" sceneMemberID="viewController">
-                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" id="iVq-Uc-PYQ">
+                    <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="58" sectionHeaderHeight="28" sectionFooterHeight="28" id="iVq-Uc-PYQ">
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="pOE-Tg-LoJ">
-                                <rect key="frame" x="0.0" y="28" width="600" height="44"/>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ConversationCell" rowHeight="58" id="pOE-Tg-LoJ" customClass="ConversationCell" customModule="DummyChat" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="28" width="600" height="58"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pOE-Tg-LoJ" id="K4l-fZ-dIN">
-                                    <rect key="frame" x="0.0" y="0.0" width="600" height="43"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="600" height="57"/>
                                     <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="voQ-ct-aBQ">
+                                            <rect key="frame" x="17" y="7" width="91" height="42"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" constant="91" id="gIi-vk-VAT"/>
+                                            </constraints>
+                                            <fontDescription key="fontDescription" type="system" pointSize="30"/>
+                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="voQ-ct-aBQ" firstAttribute="bottom" secondItem="K4l-fZ-dIN" secondAttribute="bottomMargin" id="FeP-Xp-Xqv"/>
+                                        <constraint firstItem="voQ-ct-aBQ" firstAttribute="centerY" secondItem="K4l-fZ-dIN" secondAttribute="centerY" id="ZKs-1h-W48"/>
+                                        <constraint firstItem="voQ-ct-aBQ" firstAttribute="leading" secondItem="K4l-fZ-dIN" secondAttribute="leadingMargin" constant="9" id="miS-IK-lwg"/>
+                                    </constraints>
                                 </tableViewCellContentView>
+                                <connections>
+                                    <outlet property="userLabel" destination="voQ-ct-aBQ" id="EZF-tw-nlZ"/>
+                                </connections>
                             </tableViewCell>
                         </prototypes>
                         <connections>

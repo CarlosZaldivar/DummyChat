@@ -2,94 +2,146 @@
 //  ConversationsTableViewController.swift
 //  DummyChat
 //
-//  Created by Jan on 11/08/16.
-//  Copyright © 2016 Carlos Zaldivar. All rights reserved.
-//
 
 import UIKit
 
-class ConversationsTableViewController: UITableViewController {
+import Starscream
+import SwiftyJSON
+
+class ConversationsTableViewController: UITableViewController, WebSocketDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        tableView.registerClass(Header.self, forHeaderFooterViewReuseIdentifier: "headerId")
+        
+        tableView.sectionHeaderHeight = 50
 
-        // Uncomment the following line to preserve selection between presentations
-        // self.clearsSelectionOnViewWillAppear = false
-
-        // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-        // self.navigationItem.rightBarButtonItem = self.editButtonItem()
+        SocketManager.sharedInstance.socket.delegate = self
+        let json: JSON =  ["requestType": "getConversations"]
+        SocketManager.sharedInstance.socket.writeString(json.rawString()!)
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    func websocketDidConnect(socket: WebSocket) {
+    }
+    
+    func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
+        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
+        
+        let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("LoginView") as UIViewController
+        self.presentViewController(nextViewController, animated:true, completion:nil)
+    }
+    
+    func websocketDidReceiveMessage(socket: WebSocket, text: String) {
+        let json: JSON = JSON(data: text.dataUsingEncoding(NSUTF8StringEncoding, allowLossyConversion: false)!)
+        
+        let messageType = json["messageType"].string!
+        switch messageType {
+        case "getConversationsResponse":
+            if json["status"].string == "ok" {
+                addConversations(json["conversations"])
+            }
+        case "newConversation":
+            break
+        default:
+            ()
+        }
+    }
+    
+    func websocketDidReceiveData(socket: WebSocket, data: NSData) {
+    }
+    
+    func addConversations(json: JSON) {
+        var indexPaths = [NSIndexPath]()
+        var i = SharedData.instance.conversations.count
+        for (_, conversationJson):(String, JSON) in json {
+            let id = conversationJson["id"].int!
+            if !SharedData.instance.conversations.contains({conversation in conversation.id == id}) {
+                
+                let messagesJson = conversationJson["messages"].arrayValue
+                let messages = getMessages(messagesJson)
+                let recipient = User(username: conversationJson["recipient"]["username"].string!, id: conversationJson["recipient"]["id"].int!)
+                let participants = [recipient, SharedData.instance.user!]
+                let conversation = Conversation(id: id, messages: messages, participants: participants)
+                SharedData.instance.conversations.append(conversation)
+                indexPaths.append(NSIndexPath(forRow: i, inSection: 0))
+                i += 1
+            }
+        }
+        
+        tableView.beginUpdates()
+        
+        tableView.insertRowsAtIndexPaths(indexPaths, withRowAnimation: .Right)
+        
+        tableView.endUpdates()
+    }
+    
+    func getMessages(messagesJson: [JSON]) -> [Message] {
+        var messages = [Message]()
+        for messageJson in messagesJson {
+            let message = Message(id: messageJson["id"].int!, authorId: messageJson["authorId"].int!, conversationId: messageJson["conversationId"].int!, content: messageJson["content"].string!)
+            messages.append(message)
+        }
+        return messages
+    }
 
     // MARK: - Table view data source
 
-    override func numberOfSectionsInTableView(tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
-        return 0
-    }
-
     override func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        return 0
+        return SharedData.instance.conversations.count
     }
-
-    /*
+    
     override func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithIdentifier("reuseIdentifier", forIndexPath: indexPath)
-
-        // Configure the cell...
-
+        let cell = tableView.dequeueReusableCellWithIdentifier("ConversationCell", forIndexPath: indexPath) as! ConversationCell
+        
+        let conversation = SharedData.instance.conversations[indexPath.row]
+        if conversation.participants[0].id == SharedData.instance.user!.id {
+            cell.userLabel.text = conversation.participants[1].username
+        } else {
+            cell.userLabel.text = conversation.participants[0].username
+        }
         return cell
     }
-    */
-
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    
+    override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return tableView.dequeueReusableHeaderFooterViewWithIdentifier("headerId")
     }
-    */
+}
 
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+// https://github.com/purelyswift/uitableview_row_insertions_programmatically/blob/master/mytableview1/ViewController.swift
+class ConversationCell: UITableViewCell {
+    @IBOutlet weak var userLabel: UILabel!
+}
+
+class Header: UITableViewHeaderFooterView {
+    
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
+        setupViews()
     }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
+    
+    let nameLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Conversations"
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.font = UIFont.boldSystemFontOfSize(14)
+        return label
+    }()
+    
+    func setupViews() {
+        addSubview(nameLabel)
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-16-[v0]|", options: NSLayoutFormatOptions(), metrics: nil, views: ["v0": nameLabel]))
+        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[v0]|", options: NSLayoutFormatOptions(), metrics: nil, views: ["v0": nameLabel]))
+        
     }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
+    
 }
