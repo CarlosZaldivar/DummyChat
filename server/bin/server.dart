@@ -321,12 +321,13 @@ startConversation(int senderId, Map json) async {
   newMessage.conversationId = newConversation.id;
   newMessage.content = message;
   await newMessage.save();
-  
+
   var conversation = {
     'id': newConversation.id,
     'messages': [
       {
         'id': newMessage.id,
+        'conversationId': newConversation.id,
         'authorId': newMessage.authorId,
         'content': newMessage.content
       }
