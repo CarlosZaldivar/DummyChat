@@ -15,6 +15,15 @@ class LoginViewController: UIViewController, WebSocketDelegate {
         loginButton.userInteractionEnabled = false
         SocketManager.sharedInstance.socket.delegate = self
     }
+    
+    override func viewWillAppear(animated: Bool) {
+        // Clear data
+        SharedData.instance.user = nil
+        SharedData.instance.conversations = [Conversation]()
+        SocketManager.sharedInstance.closeConnection()
+        SocketManager.sharedInstance.socket.delegate = self
+        super.viewWillAppear(animated)
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -68,9 +77,20 @@ class LoginViewController: UIViewController, WebSocketDelegate {
     }
     
     func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
-        let alert = UIAlertController(title: "Error", message: "Could not login with provided credentials", preferredStyle: UIAlertControllerStyle.Alert)
-       alert.addAction(UIAlertAction(title: "Got it", style: UIAlertActionStyle.Default, handler: nil))
-        self.presentViewController(alert, animated: true, completion: nil)
+        if error != nil {
+            switch error!.code {
+            case 401:
+                let alert = UIAlertController(title: "Error", message: "Could not login with provided credentials", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(UIAlertAction(title: "Got it", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(alert, animated: true, completion: nil)
+            case 61:
+                let alert = UIAlertController(title: "Error", message: "Could not connect to server", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(UIAlertAction(title: "Got it", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(alert, animated: true, completion: nil)
+            default:
+                ()
+            }
+        }
     }
     
     func websocketDidReceiveMessage(socket: WebSocket, text: String) {
@@ -95,7 +115,8 @@ class LoginViewController: UIViewController, WebSocketDelegate {
     func goToConversations() {
         let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
         
-        let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("ConversationsView") as UIViewController
-        self.presentViewController(nextViewController, animated:true, completion:nil)
+        let conversationsViewController = storyBoard.instantiateViewControllerWithIdentifier("ConversationsView") as UIViewController
+        
+        self.navigationController?.pushViewController(conversationsViewController, animated: true)
     }
 }

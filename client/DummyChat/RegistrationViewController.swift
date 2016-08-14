@@ -63,8 +63,8 @@ class RegistrationViewController: UIViewController, UITextFieldDelegate {
                 } else {
                     let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
                     
-                    let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("LoginView") as UIViewController
-                    self.presentViewController(nextViewController, animated:true, completion:nil)
+                    let loginViewController = storyBoard.instantiateViewControllerWithIdentifier("LoginView") as UIViewController
+                    self.navigationController?.pushViewController(loginViewController, animated: true)
                 }
         }
     }

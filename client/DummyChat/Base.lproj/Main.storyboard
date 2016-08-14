@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15A284" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="ZD8-1i-fkc">
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
@@ -25,7 +25,7 @@
                                     <segue destination="FB5-TO-HLF" kind="show" id="xRI-BZ-B79"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="DummyChat" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mbn-Hg-wsC">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="DummyChat" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mbn-Hg-wsC">
                                 <rect key="frame" x="252" y="82" width="96" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -51,10 +51,11 @@
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="Ian-Lu-mOB" secondAttribute="bottom" constant="54" id="mRQ-rD-hgd"/>
                         </constraints>
                     </view>
+                    <navigationItem key="navigationItem" id="R6C-bX-fB3"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="422" y="234"/>
+            <point key="canvasLocation" x="1234" y="234"/>
         </scene>
         <!--Registration View Controller-->
         <scene sceneID="Egw-Vu-hpP">
@@ -207,11 +208,12 @@
                         <outlet property="loginButton" destination="8iZ-Rg-c2d" id="cm9-AC-FLw"/>
                         <outlet property="passwordTextField" destination="dGH-Dr-GkO" id="eqq-JJ-QGV"/>
                         <outlet property="usernameTextField" destination="z2J-MJ-wee" id="zl2-ex-iq4"/>
+                        <segue destination="Hua-Z8-ZCA" kind="show" id="YHs-xj-7H8"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="XbV-is-gj0" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1070" y="254"/>
+            <point key="canvasLocation" x="1882" y="254"/>
         </scene>
         <!--Conversations Table View Controller-->
         <scene sceneID="1UX-mf-3Ub">
@@ -223,7 +225,7 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ConversationCell" rowHeight="58" id="pOE-Tg-LoJ" customClass="ConversationCell" customModule="DummyChat" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="28" width="600" height="58"/>
+                                <rect key="frame" x="0.0" y="92" width="600" height="58"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="pOE-Tg-LoJ" id="K4l-fZ-dIN">
                                     <rect key="frame" x="0.0" y="0.0" width="600" height="57"/>
@@ -258,7 +260,25 @@
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="GpK-OA-n1C" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1813" y="254"/>
+            <point key="canvasLocation" x="2625" y="254"/>
+        </scene>
+        <!--Navigation Controller-->
+        <scene sceneID="tfw-02-jVh">
+            <objects>
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="ZD8-1i-fkc" sceneMemberID="viewController">
+                    <toolbarItems/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="f10-iV-ICX">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <nil name="viewControllers"/>
+                    <connections>
+                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="rootViewController" id="a07-03-fji"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="66F-jp-mLk" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="422" y="234"/>
         </scene>
     </scenes>
 </document>

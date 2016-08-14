@@ -31,14 +31,7 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
     }
     
     func websocketDidDisconnect(socket: WebSocket, error: NSError?) {
-        // Clear data
-        SharedData.instance.user = nil
-        SharedData.instance.conversations = [Conversation]()
-        
-        let storyBoard : UIStoryboard = UIStoryboard(name: "Main", bundle:nil)
-        
-        let nextViewController = storyBoard.instantiateViewControllerWithIdentifier("LoginView") as UIViewController
-        self.presentViewController(nextViewController, animated:true, completion:nil)
+        navigationController?.popToRootViewControllerAnimated(true)
     }
     
     func websocketDidReceiveMessage(socket: WebSocket, text: String) {
