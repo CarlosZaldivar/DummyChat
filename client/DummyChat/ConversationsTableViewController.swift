@@ -9,17 +9,20 @@ import Starscream
 import SwiftyJSON
 
 class ConversationsTableViewController: UITableViewController, WebSocketDelegate {
+    
+    var selectedConversation: Int?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tableView.registerClass(Header.self, forHeaderFooterViewReuseIdentifier: "headerId")
-        
-        tableView.sectionHeaderHeight = 50
-
+        title = "Conversations"
+    }
+    
+    override func viewDidAppear(animated: Bool) {
         SocketManager.sharedInstance.socket.delegate = self
         let json: JSON =  ["requestType": "getConversations"]
         SocketManager.sharedInstance.socket.writeString(json.rawString()!)
+        super.viewDidAppear(animated)
     }
 
     override func didReceiveMemoryWarning() {
@@ -109,8 +112,13 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
     }
     
     override func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
-        print(indexPath)
-        
+        selectedConversation = indexPath.row
+        performSegueWithIdentifier("conversationSegue", sender: nil)
+    }
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+            let destinationVC = segue.destinationViewController as? ConversationTableViewController
+            destinationVC!.conversationIndex = selectedConversation!
     }
 
     // MARK: - Table view data source
@@ -136,35 +144,6 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
     }
 }
 
-// https://github.com/purelyswift/uitableview_row_insertions_programmatically/blob/master/mytableview1/ViewController.swift
 class ConversationCell: UITableViewCell {
     @IBOutlet weak var userLabel: UILabel!
-}
-
-class Header: UITableViewHeaderFooterView {
-    
-    override init(reuseIdentifier: String?) {
-        super.init(reuseIdentifier: reuseIdentifier)
-        setupViews()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    let nameLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Conversations"
-        label.translatesAutoresizingMaskIntoConstraints = false
-        label.font = UIFont.boldSystemFontOfSize(14)
-        return label
-    }()
-    
-    func setupViews() {
-        addSubview(nameLabel)
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("H:|-16-[v0]|", options: NSLayoutFormatOptions(), metrics: nil, views: ["v0": nameLabel]))
-        addConstraints(NSLayoutConstraint.constraintsWithVisualFormat("V:|[v0]|", options: NSLayoutFormatOptions(), metrics: nil, views: ["v0": nameLabel]))
-        
-    }
-    
 }

@@ -14,6 +14,7 @@ class LoginViewController: UIViewController, WebSocketDelegate {
         super.viewDidLoad()
         loginButton.userInteractionEnabled = false
         SocketManager.sharedInstance.socket.delegate = self
+        title = "Login"
     }
     
     override func viewWillAppear(animated: Bool) {

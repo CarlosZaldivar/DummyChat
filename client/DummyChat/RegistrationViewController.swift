@@ -12,7 +12,7 @@ class RegistrationViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         registerButton.userInteractionEnabled = false
-
+        title = "Registration"
     }
 
     override func didReceiveMemoryWarning() {
