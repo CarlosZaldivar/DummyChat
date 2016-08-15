@@ -287,6 +287,7 @@ startConversation(int senderId, Map json) async {
   var message = json['message'];
   if (recipientUsername == null || message == null) {
     response['status'] = 'error';
+    response['errorMessage'] = 'no message';
     sender.socket.add(JSON.encode(response));
     return;
   }
@@ -297,11 +298,17 @@ startConversation(int senderId, Map json) async {
   User recipient = await query.execute();
   if (recipient == null) {
     response['status'] = 'error';
+    response['errorMessage'] = 'recipient not found';
     sender.socket.add(JSON.encode(response));
     return;
   }
 
-  // Checking if conversation exist should be added.
+  if (await conversationBetweenUsersExist(senderId, recipient.id)) {
+    response['status'] = 'error';
+    response['errorMessage'] = 'conversation exists';
+    sender.socket.add(JSON.encode(response));
+    return;
+  }
 
   Conversation newConversation = new Conversation();
   await newConversation.save();
@@ -406,4 +413,34 @@ sendMessage(int senderId, Map json) async {
   response['message'] = message;
   response['status'] = 'ok';
   sender.socket.add(JSON.encode(response));
+}
+
+Future<bool> conversationBetweenUsersExist(int senderId, int recipientId) async {
+  var completer = new Completer();
+  var query = new orm.Find(UserConversation)
+    ..where(new orm.Equals('userId', senderId));
+  List<UserConversation> senderConversations = await query.execute();
+
+  query = new orm.Find(UserConversation)
+    ..where(new orm.Equals('userId', recipientId));
+
+  query.execute()
+    .then((List<UserConversation> recipientConversations) {
+      var conversations = new Set();
+      for (var userConversation in senderConversations) {
+        conversations.add(userConversation.conversationId);
+      }
+      bool conversationExists = false;
+      for (var userConversation in recipientConversations) {
+        if (conversations.contains(userConversation.conversationId)) {
+          conversationExists = true;
+          break;
+        }
+      }
+      completer.complete(conversationExists);
+  }).catchError((e) {
+      completer.complete(true);
+  });
+
+  return completer.future;
 }
