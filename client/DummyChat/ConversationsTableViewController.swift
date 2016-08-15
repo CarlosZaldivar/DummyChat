@@ -18,6 +18,11 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
         title = "Conversations"
     }
     
+    override func viewWillAppear(animated: Bool) {
+        //self.tableView.
+        super.viewWillAppear(animated)
+    }
+    
     override func viewDidAppear(animated: Bool) {
         SocketManager.sharedInstance.socket.delegate = self
         let json: JSON =  ["requestType": "getConversations"]
@@ -117,8 +122,9 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-            let destinationVC = segue.destinationViewController as? ConversationTableViewController
-            destinationVC!.conversationIndex = selectedConversation!
+        let destinationVC = segue.destinationViewController as? ConversationTableViewController
+        destinationVC!.conversationIndex = selectedConversation!
+        destinationVC!.conversationsController = self
     }
 
     // MARK: - Table view data source

@@ -240,7 +240,7 @@
                                                 <constraint firstAttribute="width" constant="91" id="gIi-vk-VAT"/>
                                             </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="30"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
@@ -291,6 +291,9 @@
                                         <constraint firstAttribute="width" constant="46" id="BmG-P8-6SQ"/>
                                     </constraints>
                                     <state key="normal" title="Send"/>
+                                    <connections>
+                                        <action selector="sendMessage:" destination="vK7-gv-qKo" eventType="primaryActionTriggered" id="hqp-n5-CD2"/>
+                                    </connections>
                                 </button>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -305,7 +308,7 @@
                             </constraints>
                         </view>
                         <prototypes>
-                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MessageCell" id="QbC-AY-PBS" customClass="MessageCell" customModule="DummyChat" customModuleProvider="target">
+                            <tableViewCell clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="MessageCell" id="QbC-AY-PBS" customClass="MessageCell" customModule="DummyChat" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="92" width="600" height="44"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="QbC-AY-PBS" id="dHL-Tm-uBP">
@@ -315,7 +318,7 @@
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YTp-5j-nzu">
                                             <rect key="frame" x="28" y="22" width="564" height="21"/>
                                             <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eti-j2-sUG">
@@ -324,7 +327,7 @@
                                                 <constraint firstAttribute="height" constant="21" id="DHT-aP-FW1"/>
                                             </constraints>
                                             <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                            <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                            <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
@@ -350,10 +353,14 @@
                             <outlet property="delegate" destination="vK7-gv-qKo" id="BbL-es-KTG"/>
                         </connections>
                     </tableView>
+                    <connections>
+                        <outlet property="messageTextField" destination="ZIx-bh-0TZ" id="MPV-bY-wEc"/>
+                        <outlet property="sendButton" destination="Ybe-bg-9oj" id="8fd-ZS-nbI"/>
+                    </connections>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5EK-T7-r3t" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2792" y="1140"/>
+            <point key="canvasLocation" x="2835" y="1139"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="tfw-02-jVh">

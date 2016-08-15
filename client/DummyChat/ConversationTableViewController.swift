@@ -11,6 +11,7 @@ import SwiftyJSON
 class ConversationTableViewController: UITableViewController, WebSocketDelegate {
     
     var conversationIndex: Int?
+    var conversationsController: ConversationsTableViewController?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -42,6 +43,13 @@ class ConversationTableViewController: UITableViewController, WebSocketDelegate 
         switch messageType {
         case "newMessage":
             addMessage(json["message"])
+        case "newConversation":
+            conversationsController!.addConversation(json["conversation"])
+        case "sentMessageResponse":
+            if json["status"].string == "ok" {
+                addMessage(json["message"])
+            }
+            ()
         default:
             ()
         }
@@ -61,7 +69,7 @@ class ConversationTableViewController: UITableViewController, WebSocketDelegate 
         
         tableView.insertRowsAtIndexPaths([insertionIndexPath], withRowAnimation: .Automatic)
     }
-    
+     
     func websocketDidReceiveData(socket: WebSocket, data: NSData) {
         
     }
@@ -98,6 +106,17 @@ class ConversationTableViewController: UITableViewController, WebSocketDelegate 
         return cell
     }
 
+    @IBOutlet weak var messageTextField: UITextField!
+    @IBOutlet weak var sendButton: UIButton!
+    @IBAction func sendMessage(sender: UIButton) {
+        if (messageTextField.text != nil) {
+            messageTextField.text = nil
+            let sentMessage = Message(id: -1, authorId: SharedData.instance.user!.id, conversationId: SharedData.instance.conversations[conversationIndex!].id, content: messageTextField.text!)
+            
+            let json: JSON =  ["requestType": "sendMessage", "message": ["authorId": sentMessage.authorId, "conversationId": sentMessage.conversationId, "content": sentMessage.content]]
+            SocketManager.sharedInstance.socket.writeString(json.rawString()!)
+        }
+    }
     /*
     // Override to support conditional editing of the table view.
     override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
