@@ -390,7 +390,8 @@ sendMessage(int senderId, Map json) async {
   newMessage.authorId = sender.user.id;
   newMessage.conversationId = conversationId;
   newMessage.content = message['content'];
-  newMessage.save();
+  await newMessage.save();
+  message["id"] = newMessage.id;
 
   // Find other participant.
   query = new orm.FindOne(UserConversation)
@@ -402,6 +403,7 @@ sendMessage(int senderId, Map json) async {
     var newMessage = {'messageType': 'newMessage', 'message': message};
     loggedUsers[recipientConversation.userId].socket.add(JSON.encode(newMessage));
   }
+  response['message'] = message;
   response['status'] = 'ok';
   sender.socket.add(JSON.encode(response));
 }
