@@ -28,4 +28,5 @@ struct Conversation {
     var id: Int
     var messages: [Message]
     var participants: [User]
+    var savedInDatabase: Bool
 }

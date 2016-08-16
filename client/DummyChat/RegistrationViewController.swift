@@ -53,7 +53,7 @@ class RegistrationViewController: UIViewController, UITextFieldDelegate {
             "password": passwordTextField.text!
         ]
         
-        Alamofire.request(.POST, "http://192.168.43.246:4040/register", parameters: parameters, encoding: .JSON)
+        Alamofire.request(.POST, "http://172.16.85.1:4040/register", parameters: parameters, encoding: .JSON)
             .validate()
             .responseString { response in
                 if !response.result.isSuccess {

@@ -53,6 +53,16 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
             }
         case "newConversation":
             addConversation(json["conversation"])
+        case "newMessage":
+            addMessage(json["message"])
+        case "getUserResponse":
+            if json["status"].string == "ok" {
+                addNewConversationSkeleton(json["user"])
+            } else {
+                let alert = UIAlertController(title: "Error", message: "Could not find user with provided username", preferredStyle: UIAlertControllerStyle.Alert)
+                alert.addAction(UIAlertAction(title: "Got it", style: UIAlertActionStyle.Default, handler: nil))
+                self.presentViewController(alert, animated: true, completion: nil)
+            }
         default:
             ()
         }
@@ -72,7 +82,7 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
                 let messages = getMessages(messagesJson)
                 let participantsJson = conversationJson["participants"].arrayValue
                 let participants = getParticipants(participantsJson)
-                let conversation = Conversation(id: id, messages: messages, participants: participants)
+                let conversation = Conversation(id: id, messages: messages, participants: participants, savedInDatabase: true)
                 SharedData.instance.conversations.append(conversation)
                 indexPaths.append(NSIndexPath(forRow: i, inSection: 0))
                 i += 1
@@ -89,13 +99,41 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
     func addConversation(conversationJson: JSON) {
         let messages = getMessages(conversationJson["messages"].arrayValue)
         let participants = getParticipants(conversationJson["participants"].arrayValue)
-        let conversation = Conversation(id: conversationJson["id"].int!, messages: messages, participants: participants)
+        let conversation = Conversation(id: conversationJson["id"].int!, messages: messages, participants: participants, savedInDatabase: false)
         
         SharedData.instance.conversations.append(conversation)
         
         let insertionIndexPath = NSIndexPath(forRow: SharedData.instance.conversations.count - 1, inSection: 0)
         
         tableView.insertRowsAtIndexPaths([insertionIndexPath], withRowAnimation: .Automatic)
+    }
+    
+    func addNewConversationSkeleton(userJson: JSON) {
+        let recipient = User(username: userJson["username"].string!, id: userJson["id"].int!)
+        let participants = [SharedData.instance.user!, recipient]
+        let conversation = Conversation(id: -1, messages: [], participants: participants, savedInDatabase: false)
+        
+        SharedData.instance.conversations.append(conversation)
+        
+        let insertionIndexPath = NSIndexPath(forRow: SharedData.instance.conversations.count - 1, inSection: 0)
+        
+        tableView.insertRowsAtIndexPaths([insertionIndexPath], withRowAnimation: .Automatic)
+        
+        selectedConversation = SharedData.instance.conversations.count - 1
+        performSegueWithIdentifier("conversationSegue", sender: nil)
+    }
+    
+    func addMessage(messageJson: JSON) {
+        let id = messageJson["id"].int!
+        let authorId = messageJson["authorId"].int!
+        let conversationId = messageJson["conversationId"].int!
+        let content = messageJson["content"].string!
+        
+        let message = Message(id: id, authorId: authorId, conversationId: conversationId, content: content)
+        
+        let conversationIndex = SharedData.instance.conversations.indexOf({$0.id == conversationId})
+        
+        SharedData.instance.conversations[conversationIndex!].messages.append(message)
     }
     
     func getMessages(messagesJson: [JSON]) -> [Message] {
@@ -148,6 +186,27 @@ class ConversationsTableViewController: UITableViewController, WebSocketDelegate
     override func tableView(tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         return tableView.dequeueReusableHeaderFooterViewWithIdentifier("headerId")
     }
+    
+    // http://stackoverflow.com/a/26567485
+    @IBAction func startNewConversation(sender: UIButton) {
+        let alert = UIAlertController(title: "New conversation", message: "Enter username", preferredStyle: .Alert)
+        
+        alert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
+            textField.text = ""
+        })
+        
+        alert.addAction(UIAlertAction(title: "Start", style: .Default, handler: { (action) -> Void in
+            let textField = alert.textFields![0] as UITextField
+            
+            let json: JSON =  ["requestType": "getUser", "username": textField.text!]
+            SocketManager.sharedInstance.socket.writeString(json.rawString()!)
+        }))
+        
+        alert.addAction(UIAlertAction(title: "Cancel", style: .Default, handler: { (action) -> Void in }))
+        
+        self.presentViewController(alert, animated: true, completion: nil)
+    }
+    
 }
 
 class ConversationCell: UITableViewCell {

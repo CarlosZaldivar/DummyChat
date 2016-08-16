@@ -226,6 +226,24 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <view key="tableFooterView" contentMode="scaleToFill" id="ysS-1J-l60">
+                            <rect key="frame" x="0.0" y="150" width="600" height="44"/>
+                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xgd-VC-Kx5">
+                                    <rect key="frame" x="239" y="8" width="123" height="30"/>
+                                    <state key="normal" title="New conversation"/>
+                                    <connections>
+                                        <action selector="startNewConversation:" destination="Hua-Z8-ZCA" eventType="primaryActionTriggered" id="lUC-3d-bq9"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstItem="Xgd-VC-Kx5" firstAttribute="centerX" secondItem="ysS-1J-l60" secondAttribute="centerX" id="0wd-t5-GWu"/>
+                                <constraint firstItem="Xgd-VC-Kx5" firstAttribute="top" secondItem="ysS-1J-l60" secondAttribute="topMargin" id="N3H-VR-GvJ"/>
+                            </constraints>
+                        </view>
                         <prototypes>
                             <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ConversationCell" rowHeight="58" id="pOE-Tg-LoJ" customClass="ConversationCell" customModule="DummyChat" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="92" width="600" height="58"/>
@@ -382,6 +400,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="rAH-Az-XZ9"/>
+        <segue reference="xRI-BZ-B79"/>
     </inferredMetricsTieBreakers>
 </document>

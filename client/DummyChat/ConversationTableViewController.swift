@@ -43,13 +43,20 @@ class ConversationTableViewController: UITableViewController, WebSocketDelegate 
         switch messageType {
         case "newMessage":
             addMessage(json["message"])
+            tableView.scrollToRowAtIndexPath(NSIndexPath(forRow: SharedData.instance.conversations[conversationIndex!].messages.count - 1, inSection: 0), atScrollPosition: UITableViewScrollPosition.Bottom, animated: true)
         case "newConversation":
             conversationsController!.addConversation(json["conversation"])
-        case "sentMessageResponse":
+        case "sendMessageResponse":
             if json["status"].string == "ok" {
                 addMessage(json["message"])
             }
             ()
+        case "startConversationResponse":
+            if json["status"].string == "ok" {
+                SharedData.instance.conversations[conversationIndex!].id = json["conversation"]["id"].int!
+                addMessage(json["conversation"]["messages"].arrayValue[0])
+                SharedData.instance.conversations[conversationIndex!].savedInDatabase = true
+            }
         default:
             ()
         }
@@ -62,12 +69,15 @@ class ConversationTableViewController: UITableViewController, WebSocketDelegate 
         let content = messageJson["content"].string!
         
         let message = Message(id: id, authorId: authorId, conversationId: conversationId, content: content)
+        let index = SharedData.instance.conversations.indexOf({$0.id == conversationId})
         
-        SharedData.instance.conversations[conversationIndex!].messages.append(message)
+        SharedData.instance.conversations[index!].messages.append(message)
         
-        let insertionIndexPath = NSIndexPath(forRow: SharedData.instance.conversations[conversationIndex!].messages.count - 1, inSection: 0)
+        if index == conversationIndex {
+            let insertionIndexPath = NSIndexPath(forRow: SharedData.instance.conversations[conversationIndex!].messages.count - 1, inSection: 0)
         
-        tableView.insertRowsAtIndexPaths([insertionIndexPath], withRowAnimation: .Automatic)
+            tableView.insertRowsAtIndexPaths([insertionIndexPath], withRowAnimation: .Automatic)
+        }
     }
      
     func websocketDidReceiveData(socket: WebSocket, data: NSData) {
@@ -101,67 +111,41 @@ class ConversationTableViewController: UITableViewController, WebSocketDelegate 
         cell.authorLabel.text = messageAuthor
         cell.contentLabel.text = messageContent
         
-        //cell.lblChatMessage.textColor = UIColor.darkGrayColor()
-        
         return cell
     }
 
     @IBOutlet weak var messageTextField: UITextField!
     @IBOutlet weak var sendButton: UIButton!
     @IBAction func sendMessage(sender: UIButton) {
-        if (messageTextField.text != nil) {
-            messageTextField.text = nil
-            let sentMessage = Message(id: -1, authorId: SharedData.instance.user!.id, conversationId: SharedData.instance.conversations[conversationIndex!].id, content: messageTextField.text!)
-            
-            let json: JSON =  ["requestType": "sendMessage", "message": ["authorId": sentMessage.authorId, "conversationId": sentMessage.conversationId, "content": sentMessage.content]]
-            SocketManager.sharedInstance.socket.writeString(json.rawString()!)
+        if (messageTextField.text != nil && messageTextField.text! != "") {
+            if SharedData.instance.conversations[conversationIndex!].id != -1 {
+                sendSingleMessage()
+            } else {
+                startNewConversation()
+            }
         }
     }
-    /*
-    // Override to support conditional editing of the table view.
-    override func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the specified item to be editable.
-        return true
+    
+    func sendSingleMessage() {
+        let sentMessage = Message(id: -1, authorId: SharedData.instance.user!.id, conversationId: SharedData.instance.conversations[conversationIndex!].id, content: messageTextField.text!)
+        
+        let json: JSON =  ["requestType": "sendMessage", "message": ["authorId": sentMessage.authorId, "conversationId": sentMessage.conversationId, "content": sentMessage.content]]
+        SocketManager.sharedInstance.socket.writeString(json.rawString()!)
+        messageTextField.text = nil
     }
-    */
-
-    /*
-    // Override to support editing the table view.
-    override func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-        if editingStyle == .Delete {
-            // Delete the row from the data source
-            tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
-        } else if editingStyle == .Insert {
-            // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-        }    
+    
+    func startNewConversation() {
+        let conversation = SharedData.instance.conversations[conversationIndex!]
+        let recipient: User
+        if conversation.participants[0].id == SharedData.instance.user!.id {
+            recipient = conversation.participants[1]
+        } else {
+            recipient = conversation.participants[0]
+        }
+        let json: JSON =  ["requestType": "startConversation", "message": messageTextField.text!, "recipient": recipient.username]
+        SocketManager.sharedInstance.socket.writeString(json.rawString()!)
+        messageTextField.text = nil
     }
-    */
-
-    /*
-    // Override to support rearranging the table view.
-    override func tableView(tableView: UITableView, moveRowAtIndexPath fromIndexPath: NSIndexPath, toIndexPath: NSIndexPath) {
-
-    }
-    */
-
-    /*
-    // Override to support conditional rearranging of the table view.
-    override func tableView(tableView: UITableView, canMoveRowAtIndexPath indexPath: NSIndexPath) -> Bool {
-        // Return false if you do not want the item to be re-orderable.
-        return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
 }
 
 class MessageCell: UITableViewCell {

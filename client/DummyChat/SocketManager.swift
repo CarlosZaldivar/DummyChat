@@ -10,7 +10,7 @@ import Starscream
 class SocketManager: NSObject {
     static let sharedInstance = SocketManager();
     
-    var socket: WebSocket = WebSocket(url: NSURL(string: "ws://10.154.82.146:4040/ws")!);
+    var socket: WebSocket = WebSocket(url: NSURL(string: "ws://172.16.85.1:4040/ws")!);
     
     
     func establishConnection(username: NSString, password: NSString) {
